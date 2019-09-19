@@ -1,9 +1,11 @@
+#![allow(unused_variables, dead_code, unused_mut)]
+
+mod config;
 mod env_in_ppid;
 // mod kubeconfig;
 
 use itertools::Itertools;
 
-use procinfo::pid;
 use skim::{Skim, SkimOptionsBuilder};
 use std::ffi::OsString;
 use std::fmt;
@@ -11,12 +13,17 @@ use std::fs;
 use std::io;
 use std::io::{copy, Cursor};
 use std::os::unix::ffi::OsStringExt;
+use std::process;
+use sysinfo::{ProcessExt, SystemExt};
 
 #[derive(Debug)]
 pub enum Error {
     HomeDir,
     Io(io::Error),
     ParentEnv(OsString, OsString, i32, Vec<u8>),
+    Config(io::Error),
+    Pid,
+    ParentPid,
 }
 
 impl fmt::Display for Error {
@@ -33,6 +40,9 @@ impl fmt::Display for Error {
                 pid,
                 String::from_utf8_lossy(err_output)
             ),
+            Error::Config(ioerr) => write!(f, "Error reading config:\n{}", ioerr,),
+            Error::Pid => write!(f, "Unable to determin process id"),
+            Error::ParentPid => write!(f, "Unable to determin parent process id"),
         }
     }
 }
@@ -80,9 +90,14 @@ pub fn real_main() -> Result<(), Error> {
 
     const VAR_NAME: &str = "KUBECONFIG";
 
-    let ppid = pid::stat_self()?.ppid;
+    let ppid = sysinfo::System::new()
+        .get_process(process::id() as i32)
+        .ok_or(Error::Pid)?
+        .parent()
+        .ok_or(Error::ParentPid)?;
+
     env_in_ppid::set(ppid, VAR_NAME, &path)?;
-    println!("{} = {}", VAR_NAME, path.display());
+    println!("{}={}", VAR_NAME, path.display());
 
     // let output = process::Command::new("kubectl")
     //     .args(&["config", "view", "-o", "json"])
