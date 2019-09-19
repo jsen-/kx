@@ -1,0 +1,4 @@
+[dependencies]
+std = { default-features=false }
+
+# docker run -it -w /wd -v $PWD:/wd vi0oss/xargo-musl xargo build --release --target=x86_64-unknown-linux-musl
