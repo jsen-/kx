@@ -7,7 +7,10 @@ where
     T: AsRef<OsStr>,
     U: AsRef<OsStr>,
 {
-    let mut dbg_input = OsString::from(r#"call (size_t) setenv(""#);
+    let var_name = var_name.as_ref();
+    let var_value = var_value.as_ref();
+
+    let mut dbg_input = OsString::from(r#"call (int) setenv(""#);
     dbg_input.push(&var_name);
     dbg_input.push(r#"", ""#);
     dbg_input.push(&var_value);
@@ -15,19 +18,20 @@ where
 
     let output = Command::new("gdb")
         .args(&[
-            OsStr::new("-nx"),
-            "-p".as_ref(),
+            OsStr::new("--nx"),
+            "--readnever".as_ref(),
+            "--pid".as_ref(),
             &pid.to_string().as_ref(),
-            "--batch".as_ref(),
-            "-ex".as_ref(),
+            "--eval-command".as_ref(),
             &dbg_input,
+            "--batch".as_ref(),
         ])
         .output()?;
 
     if !output.status.success() {
         Err(Error::ParentEnv(
-            var_name.as_ref().into(),
-            var_value.as_ref().into(),
+            var_name.into(),
+            var_value.into(),
             pid,
             output.stderr,
         ))?;
