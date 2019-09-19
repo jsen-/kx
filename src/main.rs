@@ -1,5 +1,3 @@
-#![allow(unused_variables, dead_code, unused_mut)]
-
 mod config;
 mod env_in_ppid;
 // mod kubeconfig;
@@ -13,6 +11,7 @@ use std::fs;
 use std::io;
 use std::io::{copy, Cursor};
 use std::os::unix::ffi::OsStringExt;
+use std::path::PathBuf;
 use std::process;
 use sysinfo::{ProcessExt, SystemExt};
 
@@ -21,7 +20,8 @@ pub enum Error {
     HomeDir,
     Io(io::Error),
     ParentEnv(OsString, OsString, i32, Vec<u8>),
-    Config(io::Error),
+    Config(PathBuf, io::Error),
+    ConfigDeserialize(PathBuf, serde_json::Error),
     Pid,
     ParentPid,
 }
@@ -40,7 +40,18 @@ impl fmt::Display for Error {
                 pid,
                 String::from_utf8_lossy(err_output)
             ),
-            Error::Config(ioerr) => write!(f, "Error reading config:\n{}", ioerr,),
+            Error::Config(path, ioerr) => write!(
+                f,
+                "Error reading config file \"{}\":\n{}",
+                path.display(),
+                ioerr,
+            ),
+            Error::ConfigDeserialize(path, json_error) => write!(
+                f,
+                "Error deserializing config \"{}\":\n{}",
+                path.display(),
+                json_error,
+            ),
             Error::Pid => write!(f, "Unable to determin process id"),
             Error::ParentPid => write!(f, "Unable to determin parent process id"),
         }
@@ -54,9 +65,10 @@ impl From<io::Error> for Error {
 }
 
 pub fn real_main() -> Result<(), Error> {
-    let home_dir = dirs::home_dir().ok_or_else(|| Error::HomeDir)?;
+    let config = config::settings()?;
+    let srcdir = config.search_dir;
+
     let mut kcfgs = Vec::new();
-    let srcdir = home_dir.join(".kube");
     for entry in fs::read_dir(&srcdir)? {
         let entry = entry?;
         if entry.metadata()?.is_file() {
