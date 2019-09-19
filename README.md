@@ -1,5 +1,7 @@
 # kx
-Changes KUBECONFIG environment variables in current shell
+Changes `KUBECONFIG` environment variable in the current shell
+
+![](docs/demo.gif)
 
 ## Prerequisites
  - gdb
@@ -16,11 +18,14 @@ process, check the setting of /proc/sys/kernel/yama/ptrace_scope, or try
 again as the root user.  For more details, see /etc/sysctl.d/10-ptrace.conf
 ptrace: Operation not permitted.
 ```
-you might need to execute:
+you might need:
 ```bash
+# until restart:
 sudo sysctl -w kernel.yama.ptrace_scope=0
-# more info: https://stackoverflow.com/questions/45171339/gdb-cannot-attach-to-process
+# permanently:
+sudo sed -i 's/kernel.yama.ptrace_scope = 1/kernel.yama.ptrace_scope = 0/' /etc/sysctl.d/10-ptrace.conf
 ```
+more info: https://linux-audit.com/protect-ptrace-processes-kernel-yama-ptrace_scope/
 
 ## Configuration
 
