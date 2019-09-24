@@ -60,7 +60,7 @@ impl SearchPath {
                 search_path: path,
             } => match config {
                 None => Err(Error::ConfigRelativeWithoutConfig)?,
-                Some(config) => config.join(path),
+                Some(config) => config.parent().expect("config file shall be in a directory").join(path),
             },
             SearchPath::Relative(path) => current_dir()?.join(path),
             SearchPath::HomeRelative(path) => dirs::home_dir().ok_or(Error::HomeDir)?.join(path),
