@@ -1,6 +1,6 @@
 [package]
 name = "k8s-kx"
-version = "0.2.1"
+version = "0.3.0"
 authors = [ "Martin Ivicic <max.enhanced@gmail.com>" ]
 edition = "2018"
 license = "MIT OR Apache-2.0"
@@ -9,10 +9,6 @@ repository = "https://github.com/jsen-/kx"
 keywords = [ "kubernetes", "k8s", "kubeconfig", "cli" ]
 readme = "README.md"
 categories = [ "command-line-utilities" ]
-
-[[bin]]
-name = "kx"
-path = "src/main.rs"
 
 [profile.release]
 opt-level = "z"  # Optimize for size.
@@ -26,4 +22,4 @@ serde_json = "1.0.40"
 serde = { version = "1.0.101", features=[ "derive" ] }
 itertools = "0.8.0"
 dirs = "2.0.2"
-sysinfo = "0.9.5"
+os-str-generic = "0.2.0"

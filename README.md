@@ -4,35 +4,19 @@ Changes `KUBECONFIG` environment variable in the current shell
 ![](docs/demo.gif)
 
 ## Installation
-You can either download compiled binary from [releases](releases) to a directory in you `$PATH` or run `cargo install k8s-kx` and compile it yourself.
+You can either download compiled binary from [releases](releases) to a directory in you `$PATH` or compile it yourself by `cargo install k8s-kx`.
 Binaries in releases are build using `musl` toolchain, therefore they have no external dependencies (not even libc).
 
-## Prerequisites
- - gdb
-
-## Usage
+Add the following to your `.bashrc`
+```
+alias kx='source <("k8s-kx")'
+```
+# Usage
 ```
 $ kx
 ```
 
-if you get this error:
-```
-Could not attach to process.  If your uid matches the uid of the target
-process, check the setting of /proc/sys/kernel/yama/ptrace_scope, or try
-again as the root user.  For more details, see /etc/sysctl.d/10-ptrace.conf
-ptrace: Operation not permitted.
-```
-you might need:
-```bash
-# until restart:
-sudo sysctl -w kernel.yama.ptrace_scope=0
-# permanently:
-sudo sed -i 's/kernel.yama.ptrace_scope = 1/kernel.yama.ptrace_scope = 0/' /etc/sysctl.d/10-ptrace.conf
-```
-more info: https://linux-audit.com/protect-ptrace-processes-kernel-yama-ptrace_scope/
-
 ## Configuration
-
  - `$KX_SEARCH_DIR` will let you choose KUBECONFIG from this directory
  - `$KX_CONFIG_PATH` will read configuration from this file (format below)
  - `$XDG_CONFIG_HOME/kx/config.json`
@@ -42,6 +26,22 @@ more info: https://linux-audit.com/protect-ptrace-processes-kernel-yama-ptrace_s
 ### Config file format
 ```json
 {
-    "search_dir": "/path/to/dir/with/cubeconfigs"
+    "search_dir": [
+        // absolute path
+        "/path/to/dir/with/cubeconfigs",
+        // will be resolved relative to $PWD
+        "path/to/cubeconfigs", 
+        // will be resolved relative to this config file
+        "./path/to/cubeconfigs",
+        // will be resolved relative to home directory
+        "~/path/to/cubeconfigs",
+        // will try to find first existing directory:
+        //   $PWD/path/to/cubeconfigs
+        //   $PWD/../path/to/cubeconfigs
+        //   $PWD/../../path/to/cubeconfigs
+        //   ...
+        //   /path/to/cubeconfigs
+        "^path/to/cubeconfigs",
+    ]
 }
 ```
