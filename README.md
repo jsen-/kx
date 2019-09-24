@@ -24,7 +24,7 @@ $ kx
  - if none of them are found, will search for kubeconfigs in `~/.kube`
 
 ### Config file format
-```json
+```js
 {
     "search_dir": [
         // absolute path
