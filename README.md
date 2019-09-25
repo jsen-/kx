@@ -9,7 +9,9 @@ Binaries in releases are build using `musl` toolchain, therefore they have no ex
 
 Add the following to your `.bashrc`
 ```
-alias kx='source <("k8s-kx")'
+kx() {
+    eval $(k8s-kx)
+}
 ```
 # Usage
 ```
