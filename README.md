@@ -10,7 +10,7 @@ Binaries in releases are build using `musl` toolchain, therefore they have no ex
 Add the following to your `.bashrc`
 ```
 kx() {
-    KX_RUN=$(/usr/local/sbin/k8s-kx)
+    eval $(k8s-kx)
     eval $KX_RUN
 }
 ```
