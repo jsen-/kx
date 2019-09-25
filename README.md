@@ -11,7 +11,6 @@ Add the following to your `.bashrc`
 ```
 kx() {
     eval $(k8s-kx)
-    eval $KX_RUN
 }
 ```
 # Usage
