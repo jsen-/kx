@@ -4,7 +4,7 @@ Changes `KUBECONFIG` environment variable in the current shell
 ![](docs/demo.gif)
 
 ## Installation
-You can either download compiled binary from [releases](releases) to a directory in you `$PATH` or compile it yourself by `cargo install k8s-kx`.
+You can either download compiled binary from [releases](https://github.com/jsen-/kx/releases) to a directory in you `$PATH` or compile it yourself by `cargo install k8s-kx`.
 Binaries in releases are build using `musl` toolchain, therefore they have no external dependencies (not even libc).
 
 Add the following to your `.bashrc`
